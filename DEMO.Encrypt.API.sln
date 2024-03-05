@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMO.Encrypt.API", "DEMO.Encrypt.API\DEMO.Encrypt.API.csproj", "{18714B8C-8412-4F52-ACD5-E832D3680739}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18714B8C-8412-4F52-ACD5-E832D3680739}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18714B8C-8412-4F52-ACD5-E832D3680739}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18714B8C-8412-4F52-ACD5-E832D3680739}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18714B8C-8412-4F52-ACD5-E832D3680739}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E487AE54-51FB-4B2E-90CB-1F0E32C835D7}
+	EndGlobalSection
+EndGlobal
