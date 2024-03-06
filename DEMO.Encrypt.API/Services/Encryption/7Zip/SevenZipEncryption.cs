@@ -4,6 +4,45 @@ namespace DEMO.Encrypt.API.Services.Encryption
 {
     public class SevenZipEncryption : ISevenZipEncryption
     {
+        public async Task<bool> EncryptFilesInChunks(string[] filePaths, string password)
+        {
+            try
+            {
+                foreach (var filePath in filePaths)
+                {
+                    long fileSize = new FileInfo(filePath).Length; // Original file size
+                    long chunkSize = 2 * 1024 * 1024; // Desired size of each chunk (in bytes)
+                    int chunkIndex = 1;
+
+                    using (FileStream fileStream = File.OpenRead(filePath))
+                    {
+                        while (fileStream.Position < fileSize)
+                        {
+                            // Read the original file in chunks
+                            byte[] buffer = new byte[chunkSize];
+                            int bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length);
+
+                            // Create an encrypted file for the current chunk
+                            string encryptedFileName = $"{Path.GetFileNameWithoutExtension(filePath)}_{chunkIndex}.7z";
+                            string encryptedFilePath = Path.Combine(Path.GetDirectoryName(filePath), encryptedFileName);
+
+                            // Encrypt the chunk file
+                            await EncryptChunkAsync(encryptedFilePath, buffer, password);
+
+                            chunkIndex++;
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return false;
+            }
+        }
+
         public async Task<bool> EncryptFolderParallel(string folderPath, string password)
         {
             // Search for all .csv files within the directory
@@ -65,10 +104,64 @@ namespace DEMO.Encrypt.API.Services.Encryption
             // Build the command to encrypt the file with 7-Zip
             string encryptedFileName = Path.GetFileNameWithoutExtension(filePath) + ".7z";
             string encryptedFilePath = Path.Combine(outputFolder, encryptedFileName);
-            string command = $"a -p {password} -mhe \"{encryptedFilePath}\" \"{filePath}\"";
+            string command = $"a -p{password} -mhe \"{encryptedFilePath}\" \"{filePath}\"";
 
             // Execute the 7-Zip command asynchronously
             return await ExecuteCommandAsync(command);
+        }
+
+        public async Task<bool> EncryptChunkAsync(string filePath, byte[] data, string password)
+        {
+            // Create a subfolder named "Encrypted" within the folder of the original file
+            string outputFolder = Path.Combine(Path.GetDirectoryName(filePath), "Encrypted");
+            Directory.CreateDirectory(outputFolder);
+
+            // Build the command to encrypt the file with 7-Zip
+            string encryptedFileName = Path.GetFileNameWithoutExtension(filePath) + ".7z";
+            string encryptedFilePath = Path.Combine(outputFolder, encryptedFileName);
+            string command = $"a -p{password} -mhe \"{encryptedFilePath}\" \"{filePath}\"";
+
+            // Execute the 7-Zip command asynchronously
+            return await ExecuteCommandAsync(data, command);
+        }
+
+        private async Task<bool> ExecuteCommandAsync(byte[] data, string command)
+        {
+            try
+            {
+                using (MemoryStream memoryStream = new MemoryStream(data))
+                {
+                    // Start the process and write the data to 7-Zip's standard input
+                    using (Process process = new Process())
+                    {
+                        process.StartInfo.FileName = "7z.exe";
+                        process.StartInfo.Arguments = command;
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.RedirectStandardInput = true;
+                        process.Start();
+
+                        // Write data to 7-Zip's standard input
+                        await memoryStream.CopyToAsync(process.StandardInput.BaseStream);
+                        process.StandardInput.Close();
+
+                        // Wait for the process to exit
+                        await process.WaitForExitAsync();
+
+                        if (process.ExitCode != 0)
+                        {
+                            Console.WriteLine($"Error: 7-Zip process exited with code {process.ExitCode}");
+                            return false;
+                        }
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message} - {ex.StackTrace}");
+                return false;
+            }
         }
 
         private async Task<bool> ExecuteCommandAsync(string command)

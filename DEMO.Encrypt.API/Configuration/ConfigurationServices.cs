@@ -7,7 +7,7 @@ public static class ConfigurationServices
 {
     public static IServiceCollection RegisterServices(this IServiceCollection services)
     {
-        services.AddScoped<ISplitterService, SplitterService>();
+        services.AddScoped<IExporterService, ExporterService>();
         services.AddScoped<ISevenZipEncryption, SevenZipEncryption>();
 
         return services;
