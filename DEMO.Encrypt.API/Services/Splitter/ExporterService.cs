@@ -1,10 +1,8 @@
-﻿using System.Text;
-
-namespace DEMO.Encrypt.API.Services.Splitter
+﻿namespace DEMO.Encrypt.API.Services.Splitter
 {
     public class ExporterService : IExporterService
     {
-        private const int MaxFileSizeBytes = 1024;
+        private const int MaxFileSizeBytes = 1048576 ;
 
         private IConfiguration _configuration;
 
@@ -21,7 +19,7 @@ namespace DEMO.Encrypt.API.Services.Splitter
                 int currentFileSize = 0;
 
                 // Concatenate the project directory path with the output folder path
-                var outputFolderPath = Path.Combine(Path.Combine(AppContext.BaseDirectory, _configuration["Encryption:OutputFolderPath"]), Guid.NewGuid().ToString());
+                var outputFolderPath = Path.Combine(Path.Combine(AppContext.BaseDirectory, _configuration["Compression:OutputFolderPath"]), Guid.NewGuid().ToString());
 
                 // Create the output directory if it doesn't exist
                 Directory.CreateDirectory(outputFolderPath);
@@ -93,7 +91,7 @@ namespace DEMO.Encrypt.API.Services.Splitter
             try
             {
                 // Concatenate the project directory path with the output folder path
-                var outputFolderPath = Path.Combine(AppContext.BaseDirectory, _configuration["Encryption:OutputFolderPath"]);
+                var outputFolderPath = Path.Combine(AppContext.BaseDirectory, _configuration["Compression:OutputFolderPath"]);
 
                 // Create the output directory if it doesn't exist
                 Directory.CreateDirectory(outputFolderPath);
@@ -132,18 +130,6 @@ namespace DEMO.Encrypt.API.Services.Splitter
             // Here you should implement logic to convert a record to a CSV line
             // For simplicity, we assume that type T has properties representing column names
             return string.Join(",", typeof(T).GetProperties().Select(p => p.GetValue(record)?.ToString() ?? ""));
-        }
-
-        /// <summary>
-        /// Estimate the size of a CSV record in bytes.
-        /// </summary>
-        /// <returns>The estimated size of a CSV record in bytes.</returns>
-        private int EstimateCsvRecordSize()
-        {
-            // This function should estimate the approximate size in bytes of a CSV line
-            // You can calculate it based on the expected size of your records
-            // For simplicity, we will return a constant value
-            return 100; // Estimated size of a CSV line in bytes
         }
 
         /// <summary>
